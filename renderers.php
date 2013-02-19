@@ -14,7 +14,16 @@ class theme_decaf_core_renderer extends core_renderer {
     public function footer() {
         global $CFG, $DB, $USER;
 
-        $output = $this->container_end_all(true);
+	// start mod_navbuttons compatibility
+	$output = '';
+	if( file_exists( $CFG->dirroot.'/blocks/navbuttons/footer.php' ) ) {
+		require_once( $CFG->dirroot.'/blocks/navbuttons/footer.php' );
+		$output = draw_navbuttons().$this->container_end_all(true);
+	}
+	else {
+		$output = $this->container_end_all( true );
+	}
+	// end mod_navbuttons compatibility
 
         $footer = $this->opencontainers->pop('header/footer');
 
