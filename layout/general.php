@@ -26,6 +26,16 @@ if (empty($PAGE->layout_options['noawesomebar'])) {
 $custommenu = $OUTPUT->custom_menu();
 $hascustommenu = (empty($PAGE->layout_options['nocustommenu']) && !empty($custommenu));
 
+$courseheader = $coursecontentheader = $coursecontentfooter = $coursefooter = '';
+if (method_exists($OUTPUT, 'course_header') && empty($PAGE->layout_options['nocourseheaderfooter'])) {
+    $courseheader = $OUTPUT->course_header();
+    $coursecontentheader = $OUTPUT->course_content_header();
+    if (empty($PAGE->layout_options['nocoursefooter'])) {
+        $coursecontentfooter = $OUTPUT->course_content_footer();
+        $coursefooter = $OUTPUT->course_footer();
+    }
+}
+
 $bodyclasses = array();
 
 if(!empty($PAGE->theme->settings->useeditbuttons) && $PAGE->user_allowed_editing()) {
@@ -41,12 +51,18 @@ if ($hassidepre && !$hassidepost) {
     $bodyclasses[] = 'content-only';
 }
 
-if(!empty($PAGE->theme->settings->persistentedit) && $PAGE->user_allowed_editing()) {
+if(!empty($PAGE->theme->settings->persistentedit)) {
     if(property_exists($USER, 'editing') && $USER->editing) {
         $OUTPUT->set_really_editing(true);
     }
-    $USER->editing = 1;
-    $bodyclasses[] = 'decaf_persistent_edit';
+    if ($PAGE->user_allowed_editing()) {
+        $USER->editing = 1;
+        $bodyclasses[] = 'decaf_persistent_edit';
+    }
+}
+
+if(!empty($PAGE->theme->settings->usemodchoosertiles)) {
+    $bodyclasses[] = 'decaf_modchooser_tiles';
 }
 
 if (!empty($PAGE->theme->settings->footnote)) {
@@ -138,6 +154,10 @@ if (empty($PAGE->layout_options['noawesomebar'])) { ?>
       <div id="custommenu" class="decaf-awesome-bar"><?php echo $custommenu; ?></div>
  	<?php } ?>
     
+    <?php if (!empty($courseheader)) { ?>
+        <div id="course-header"><?php echo $courseheader; ?></div>
+    <?php } ?>
+
     <?php if ($hasnavbar) { ?>
 	    <div class="navbar clearfix">
     	    <div class="breadcrumb"><?php echo $OUTPUT->navbar(); ?></div>
@@ -155,7 +175,9 @@ if (empty($PAGE->layout_options['noawesomebar'])) { ?>
                 <div id="region-main-wrap">
                     <div id="region-main">
                         <div class="region-content">
+                            <?php echo $coursecontentheader; ?>
                             <?php echo method_exists($OUTPUT, "main_content")?$OUTPUT->main_content():core_renderer::MAIN_CONTENT_TOKEN ?>
+                            <?php echo $coursecontentfooter; ?>
                         </div>
                     </div>
                 </div>
@@ -182,6 +204,9 @@ if (empty($PAGE->layout_options['noawesomebar'])) { ?>
 </div>
 
 <!-- START OF FOOTER -->
+    <?php if (!empty($coursefooter)) { ?>
+        <div id="course-footer"><?php echo $coursefooter; ?></div>
+    <?php } ?>
     <?php if ($hasfooter) { ?>
     <div id="page-footer" class="clearfix">
 		<div class="footnote"><?php echo $footnote; ?></div>

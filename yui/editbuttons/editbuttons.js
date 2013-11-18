@@ -20,7 +20,10 @@ EditButtons.prototype = {
         }
         // Find all sets of icons and convert them to edit buttons
         Y.all('.commands').each(function(icons) {
-            if(icons.getComputedStyle('display')=='none' && (!icons.all('a').isEmpty() && icons.ancestor('.path-mod-forum #region-main')==null)) {
+            var buttons = icons.all('a');
+            if (!buttons.isEmpty() && buttons.size() == 1) {
+                icons.addClass('decaf-noeditbutton');
+            } else if(icons.getComputedStyle('display')=='none' && (!buttons.isEmpty() && icons.ancestor('.path-mod-forum #region-main')==null)) {
                 self.processIcons(icons);
             }
         });
@@ -34,26 +37,41 @@ EditButtons.prototype = {
         'body', 'a.decaf-editbutton', this);
 
         try {
-            M.core_dock.getPanel().on('dockpanel:beforeshow', function(e) {
-                var thisbutton = self.editbutton.cloneNode(true);
-                var icons = this.one('.dockeditempanel_hd .commands');
-                var closeicon = icons.one('.hidepanelicon');
-                thisbutton.on('click', function(e, button) {
-                    e.preventDefault();
-                    button.ancestor().toggleClass('active');
-                }, this, thisbutton);
-                self.wrapButton(icons, thisbutton);
-                if(closeicon) {
-                    thisbutton.ancestor().insertBefore(icons.removeChild(closeicon), thisbutton);
+            M.core_dock.on('dock:panelresizestart', function(e) {
+                var item = M.core_dock.getActiveItem();
+                if (item.decaf_editbutton_done) {
+                    this.all('.dockeditempanel_hd .hidepanelicon').remove();
+                    item.fire('dockeditem:drawcomplete');
+                    return;
                 }
-            }, M.core_dock.getPanel())
-            M.core_dock.getPanel().on('dockpanel:beforehide', function(e) {
                 var icons = this.one('.dockeditempanel_hd .commands');
-                var closeicon = this.one('.decaf-editbutton-wrap .hidepanelicon');
-                if(closeicon) {
-                    icons.appendChild(closeicon.ancestor().removeChild(closeicon));
+                icons.all('.moveto span').remove()
+
+                // Don't bother if it's only the undock and close icons
+                if (icons.get('children').size()===2) {
+                    icons.addClass('dock-commands');
+                } else {
+                    self.wrapButton(icons, self.editbutton.cloneNode(true));
+                    var wrap = icons.ancestor();
+                    // Put dock controls back outside edit button
+                    wrap.append(icons.all('.moveto').remove());
+                    wrap.append(icons.all('.hidepanelicon').remove());
+                    item.commands = wrap.cloneNode(true);
                 }
-            }, M.core_dock.getPanel())
+                item.decaf_editbutton_done = true;
+            }, M.core_dock.getPanel());
+
+            var attachRemoveHandler = function(item) {
+                item.on('dockeditem:itemremoved', function() {
+                    var button = this.commands.ancestor('.header').one('.decaf-editbutton-wrap');
+                    if (button) button.remove();
+                    if (!this.decaf_editbutton_done && this.commands.hasChildNodes()) {
+                        self.wrapButton(this.commands, self.editbutton.cloneNode(true));
+                    }
+                }, item);
+            }
+            M.core_dock.on('dock:itemadded', attachRemoveHandler, M.core_dock);
+            Y.Array.each(M.core_dock.items, attachRemoveHandler);
         } catch(x) {}
 
         // Horribly nasty hack, since nothing in the dndupload chain fires any events we can listen for.
@@ -94,15 +112,25 @@ EditButtons.prototype = {
             var caption = tag.get('title') || icon.get('title') || icon.get('alt');
             icon.removeAttribute('hspace');
             tag.append('<span>' + caption + '</span>');
-            if(icon.get('src').match(/hide$/) || icon.get('src').match(/show$/) || icon.get('src').match(/group[nvs]$/)) {
+            if(icon.get('src').match(/t%2Fhide/) || icon.get('src').match(/t%2Fshow/) || icon.get('src').match(/t%2Fgroup[nvs]/)) {
                 tag.on('click', function(e, tag) {
-                    var icon = tag.one('img');
-                    var caption = tag.get('title') || icon.get('title') || icon.get('alt');
-                    icon.removeAttribute('hspace');
-                    tag.one('span').set('innerHTML', caption);
+                    window.setTimeout(function(){
+                        var icon = tag.one('img');
+                        var caption = tag.get('title') || icon.get('title') || icon.get('alt');
+                        icon.removeAttribute('hspace');
+                        tag.one('span').set('innerHTML', caption);
+                    }, 1);
                 }, this, tag);
             }
         });
+        Y.later(1500, this, function(icons) {
+            icons.all('span.editing_move').each(function(tag) {
+                var icon = tag.one('img');
+                var caption = tag.get('title') || icon.get('title') || icon.get('alt');
+                icon.removeAttribute('hspace');
+                tag.append('<span>' + caption + '</span>');
+            });
+        }, icons);
         this.wrapButton(icons, thisbutton);
     },
     toggleButton : function(button) {

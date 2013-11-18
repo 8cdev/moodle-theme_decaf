@@ -30,6 +30,27 @@ if ($ADMIN->fulltree) {
     $description = get_string('customcssdesc', 'theme_decaf');
     $setting = new admin_setting_configtextarea($name, $title, $description, '');
     $settings->add($setting);
+    
+    // Show user profile picture
+    $name = 'theme_decaf/showuserpicture';
+    $title = get_string('showuserpicture','theme_decaf');
+    $description = get_string('showuserpicturedesc', 'theme_decaf');
+    $default = 0;
+    $choices = array(1=>'Yes', 0=>'No');
+    $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
+    $settings->add($setting);
+
+    // Editing Mode heading
+    $settings->add(new admin_setting_heading('themedecafeditingsettings', get_string('editingsettings', 'theme_decaf'), get_string('editingsettingsdesc', 'theme_decaf')));
+
+    // Enable mod chooser "tiles"
+    $name = 'theme_decaf/usemodchoosertiles';
+    $title = get_string('usemodchoosertiles','theme_decaf');
+    $description = get_string('usemodchoosertilesdesc', 'theme_decaf');
+    $default = 0;
+    $choices = array(0=>'No', 1=>'Yes');
+    $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
+    $settings->add($setting);
 
     // Enable edit buttons (replace rows of icons)
     $name = 'theme_decaf/useeditbuttons';
@@ -49,6 +70,9 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
     $settings->add($setting);
 
+    // Awesomebar / Navigation heading
+    $settings->add(new admin_setting_heading('themedecafawesombarsettings', get_string('awesomebarsettings', 'theme_decaf'), get_string('awesomebarsettingsdesc', 'theme_decaf')));
+
     // Hide Settings block
     $name = 'theme_decaf/hidesettingsblock';
     $title = get_string('hidesettingsblock','theme_decaf');
@@ -62,15 +86,6 @@ if ($ADMIN->fulltree) {
     $name = 'theme_decaf/hidenavigationblock';
     $title = get_string('hidenavigationblock','theme_decaf');
     $description = get_string('hidenavigationblockdesc', 'theme_decaf');
-    $default = 0;
-    $choices = array(1=>'Yes', 0=>'No');
-    $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
-    $settings->add($setting);
-    
-    // Show user profile picture
-    $name = 'theme_decaf/showuserpicture';
-    $title = get_string('showuserpicture','theme_decaf');
-    $description = get_string('showuserpicturedesc', 'theme_decaf');
     $default = 0;
     $choices = array(1=>'Yes', 0=>'No');
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
@@ -100,6 +115,15 @@ if ($ADMIN->fulltree) {
     $description = get_string('coursesloggedinonlydesc', 'theme_decaf');
     $default = 0;
     $choices = array(0=>'No', 1=>'Yes');
+    $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
+    $settings->add($setting);
+
+    // Don't actually show courses under "Courses" menu item
+    $name = 'theme_decaf/coursesleafonly';
+    $title = get_string('coursesleafonly','theme_decaf');
+    $description = get_string('coursesleafonlydesc', 'theme_decaf');
+    $default = 0;
+    $choices = array(0=>'Yes', 1=>'No'); // This seems backwards, but makes it easier for users to understand as it eliminates the double-negative.
     $setting = new admin_setting_configselect($name, $title, $description, $default, $choices);
     $settings->add($setting);
 
