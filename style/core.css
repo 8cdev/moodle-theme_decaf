@@ -10,6 +10,7 @@ a:link,a:visited {color: #C22323;}
 a:hover,a:active {color: #251c17;}
 a img {border: none;}
 a:active {outline: none;}
+.singleselect option {text-align:left;}
 /* Header
 ------------------------- */
 #page-header-wrapper{margin:0 0 0 50px;}
@@ -107,7 +108,7 @@ ul.section .activity .contentafterlink p {margin:0 0 1em;}
 body.editing ul.section>li {border-bottom: 1px dashed #808080; position:relative;}
 input[type=submit] {background:-webkit-gradient(linear,0% 40%,0% 70%,from(#F9F9F9),to(#E3E3E3));margin: 0 8px 0 0;padding: 2px 8px;text-align: center;vertical-align: middle;white-space: nowrap;cursor: default;outline: none;font-family: arial,sans-serif;color: black;border: 1px solid #BBB;border-radius: 3px;-webkit-border-radius: 3px;-moz-border-radius: 3px;border-top-color: #CCC;border-bottom-color: #A0A0A0;}
 /* Make 2.3 activity chooser sit on top of modules in sections */
-div.moodle-dialogue-base {position:absolute;top:0;left:0;right:0;z-index:150;}
+div.moodle-dialogue-base {position:absolute;top:0;left:0;right:0;z-index:1500;}
 
 /* Blocks
 --------------------------- */
@@ -151,13 +152,28 @@ div.moodle-dialogue-base {position:absolute;top:0;left:0;right:0;z-index:150;}
 .decaf_with_edit_buttons.jsenabled .active .decaf-editbutton {opacity:1;}
 .decaf_with_edit_buttons.jsenabled .decaf-editbutton:active {opacity:1; background-color:#B3FF99;}
 .decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap.active {z-index:4;}
+.decaf_with_edit_buttons.jsenabled.ie8 .decaf-editbutton {background-color:#DFFFD6;color:#999;}
+.decaf_with_edit_buttons.jsenabled.ie8 .decaf-editbutton:hover,
+.decaf_with_edit_buttons.jsenabled.ie8 .active .decaf-editbutton {background-color:#C6FFB3;color:#000;}
+.decaf_with_edit_buttons.jsenabled.ie8 .decaf-editbutton:active {background-color:#B3FF99;}
 .decaf_with_edit_buttons.jsenabled .commands,
 .decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .commands,
 .decaf_with_edit_buttons.jsenabled .sitetopic .section .activity .commands,
 .decaf_with_edit_buttons.jsenabled .course-content .section .activity .commands {display:none;}
-.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands a {display:block; line-height:14px; font-size:12px; vertical-align:middle;}
-.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands a img {clear:left; float:left; margin:1px 4px;}
-.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands a span {float:left; padding-top:5px; max-width:120px;}
+.decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd {padding-bottom:20px;}
+.decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .decaf-editbutton {margin-right:7px;}
+.decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .commands.dock-commands,
+.decaf_with_edit_buttons.jsenabled .commands.decaf-noeditbutton {display:block;}
+.decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .commands.dock-commands a img,
+.decaf_with_edit_buttons.jsenabled .commands.decaf-noeditbutton a img {border:0px none;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0;width:12px;height:12px;}
+.decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .hidepanelicon,
+.decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .moveto {margin:3px;}
+.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands a,
+.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands span.editing_move {display:block; line-height:14px; font-size:12px; vertical-align:middle; text-align:left;}
+.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands a img,
+.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands span.editing_move img {clear:left; float:left; margin:1px 4px;}
+.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands a span,
+.decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands span.editing_move span {float:left; padding-top:5px; max-width:120px;}
 .decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap .commands {float:none !important; left:100%; position:absolute; top:2px; margin-left:4px; background-color:#E1E1E1; border: 1px solid #D1D1D1; width:150px; z-index:600; -moz-box-shadow: 3px 3px 5px #999; -webkit-box-shadow: 3px 3px 5px #999; box-shadow: 3px 3px 5px #999; padding:2px 0;}
 .decaf_with_edit_buttons.jsenabled .decaf-editbutton-wrap.active .commands,
 .decaf_with_edit_buttons.jsenabled #dockeditempanel .dockeditempanel_hd .decaf-editbutton-wrap.active .commands,
@@ -283,6 +299,23 @@ body.pagelayout-report #page-content #region-main .region-content {
 --------------------------*/
 #page-mod-quiz-edit div.question div.content div.qorder {right:60px;}
 #page-mod-quiz-edit div.question div.content div.questioncontrols {width:65px;}
+
+/* Question bank
+--------------------------*/
+table#categoryquestions .iconcol {width:21px;}
+body#page-question-category.decaf_with_edit_buttons.jsenabled div.box.questioncategories .commands > img.iconsmall {display:none;}
+
+/* Mod chooser tiles
+--------------------------*/
+.decaf_modchooser_tiles .choosercontainer #chooseform .moduletypetitle {width:100%;font-size:120%;font-weight:bold;clear:both;padding:0.5em 0 0.3em 0;text-align:center;}
+.decaf_modchooser_tiles .choosercontainer #chooseform .options .option {float:left;width:70px;margin:0 2px;padding:0;text-align:center;}
+.decaf_modchooser_tiles .choosercontainer #chooseform .options .option label {height:55px;}
+.decaf_modchooser_tiles .choosercontainer #chooseform .options .option input {position:absolute;left:-10000px;}
+.decaf_modchooser_tiles .choosercontainer #chooseform .options .option .modicon {display:block;width:24px;height:24px;margin: 0 auto;}
+.decaf_modchooser_tiles .choosercontainer #chooseform .options .option .modicon img.icon {padding:0;}
+.decaf_modchooser_tiles .choosercontainer #chooseform .options .option .typename {padding:0;font-size:90%;line-height:1;}
+.decaf_modchooser_tiles .moodle-dialogue-base .moodle-dialogue.chooserdialogue .moodle-dialogue-bd .option label {line-height:1;}
+
 
 /** Custom CSS **/
 [[setting:customcss]]

@@ -277,10 +277,11 @@ class theme_decaf_topsettings_renderer extends plugin_renderer_base {
     }
 
     protected function navigation_node(navigation_node $node, $attrs=array()) {
-        global $PAGE;
-        static $subnav;
+        global $CFG, $PAGE;
+        static $mainsubnav;
+        static $coursessubnav;
         $items = $node->children;
-        $hidecourses = (property_exists($PAGE->theme->settings, 'coursesloggedinonly') && $PAGE->theme->settings->coursesloggedinonly);
+        $hidecourses = (property_exists($PAGE->theme->settings, 'coursesloggedinonly') && $PAGE->theme->settings->coursesloggedinonly && !isloggedin());
 
         // exit if empty, we don't want an empty ul element
         if ($items->count() == 0) {
@@ -309,16 +310,37 @@ class theme_decaf_topsettings_renderer extends plugin_renderer_base {
                 $item->hideicon = true;
             }
 
+            if ($item->action instanceof action_link && $hasicon && !$item->hideicon && (strip_tags($item->action->text)==$item->action->text)) {
+                // Icon hasn't already been rendered - render it now.
+                $item->action->text = $this->output->render($item->icon) . $item->action->text;
+            }
+
             $content = $this->output->render($item);
             if($isbranch && $item->children->count()==0) {
+                $expanded = false;
                 // Navigation block does this via AJAX - we'll merge it in directly instead
-                if(!$subnav) {
-                    // Prepare dummy page for subnav initialisation
-                    $dummypage = new decaf_dummy_page();
-                    $dummypage->set_context($PAGE->context);
-                    $dummypage->set_url($PAGE->url);
-                    $subnav = new decaf_expand_navigation($dummypage, $item->type, $item->key);
+                if (!empty($CFG->navshowallcourses) && $item->key === 'courses') {
+                    if(!$coursessubnav) {
+                        // Prepare dummy page for subnav initialisation
+                        $dummypage = new decaf_dummy_page();
+                        $dummypage->set_context($PAGE->context);
+                        $dummypage->set_url($PAGE->url);
+                        $coursessubnav = new decaf_expand_navigation($dummypage, $item->type, $item->key);
+                        $expanded = true;
+                    }
+                    $subnav = $coursessubnav;
                 } else {
+                    if(!$mainsubnav) {
+                        // Prepare dummy page for subnav initialisation
+                        $dummypage = new decaf_dummy_page();
+                        $dummypage->set_context($PAGE->context);
+                        $dummypage->set_url($PAGE->url);
+                        $mainsubnav = new decaf_expand_navigation($dummypage, $item->type, $item->key);
+                        $expanded = true;
+                    }
+                    $subnav = $mainsubnav;
+                }
+                if (!$expanded) {
                     // re-use subnav so we don't have to reinitialise everything
                     $subnav->expand($item->type, $item->key);
                 }
@@ -369,4 +391,48 @@ class theme_decaf_topsettings_renderer extends plugin_renderer_base {
 
 }
 
-?>
+require_once($CFG->dirroot.'/course/renderer.php');
+class theme_decaf_core_course_renderer extends core_course_renderer {
+    protected function course_modchooser_module($module, $classes = array('option')) {
+        global $PAGE;
+        if(empty($PAGE->theme->settings->usemodchoosertiles)) {
+            return parent::course_modchooser_module($module, $classes);
+        }
+        $output = '';
+        $output .= html_writer::start_tag('div', array('class' => implode(' ', $classes)));
+        $output .= html_writer::start_tag('label', array('for' => 'module_' . $module->name));
+        if (!isset($module->types)) {
+            $output .= html_writer::tag('input', '', array('type' => 'radio',
+                    'name' => 'jumplink', 'id' => 'module_' . $module->name, 'value' => $module->link));
+        }
+
+        $attributes = array('class' => 'modicon');
+        if (isset($module->icon)) {
+            // Add an icon if we have one
+            $attributes['style'] = 'background-image:url('.$this->pix_url('icon', $module->name).');';
+        }
+        $output .= html_writer::tag('span', '', $attributes);
+
+        $output .= html_writer::tag('span', $module->title, array('class' => 'typename'));
+        if (!isset($module->help)) {
+            // Add help if found
+            $module->help = get_string('nohelpforactivityorresource', 'moodle');
+        }
+
+        // Format the help text using markdown with the following options
+        $options = new stdClass();
+        $options->trusted = false;
+        $options->noclean = false;
+        $options->smiley = false;
+        $options->filter = false;
+        $options->para = true;
+        $options->newlines = false;
+        $options->overflowdiv = false;
+        $module->help = format_text($module->help, FORMAT_MARKDOWN, $options);
+        $output .= html_writer::tag('span', $module->help, array('class' => 'typesummary'));
+        $output .= html_writer::end_tag('label');
+        $output .= html_writer::end_tag('div');
+
+        return $output;
+    }
+}
